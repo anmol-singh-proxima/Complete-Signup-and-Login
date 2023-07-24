@@ -10,9 +10,15 @@
       </div>
     </section>
     <section id="content">
-      <div class="about">
-        <span class="head">Proxima Site</span>
-        <span class="para">This site provides information about the Proxima Centuary. Proxima Centuary is a star in our Galaxy i.e. Milky Way Galaxy.<br/> It is 500 Light years away from our Solar System. It is one of the least brightest Star in our Galaxy.</span>
+      <div class="signup">
+        <span class="head">Signup</span>
+        <form @submit.prevent="signup">
+          <input type="text" placeholder="Enter name" v-model="name" />
+          <input type="email" placeholder="Enter Email Id" v-model="email" />
+          <input type="password" placeholder="Enter Password" v-model="password1" />
+          <input type="password" placeholder="Confirm Password" v-model="password1" />
+          <button>Signup</button>
+        </form>
       </div>
     </section>
   </div>
@@ -21,16 +27,22 @@
 <script>
 /* eslint-disable */
 export default {
-  name: 'HomePage',
+  name: 'SignupPage',
   data() {
     return {
-
+      name: '',
+      email: '',
+      password1: '',
+      password2: ''
     }
   },
   methods: {
     getRouteLink(routeName) {
       console.log("route:", this.$router);
       return this.$router.resolve({ name: routeName }).href;
+    },
+    signup() {
+      console.log("Form Submitted");
     }
   }
 }
@@ -89,7 +101,8 @@ export default {
   background-color: rgba(10, 10, 10, 0.5);
   padding: 20px;
 }
-#content .about {
+
+#content .signup {
   display: block;
   width: 30%;
   height: 100%;
@@ -98,21 +111,29 @@ export default {
   border: 1px solid #fff;
   border-radius: 6px;
 }
-#content .about .head {
+#content .signup .head {
   display: block;
   width: 100%;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   line-height: 1.4;
   color: #fff;
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
 }
-#content .about .para {
+#content .signup form input, #content .signup form button {
   display: block;
   width: 100%;
   font-size: 1rem;
   line-height: 1.5;
+  padding: 8px 16px;
+  margin: 15px 0;
+  color: green;
+  background-color: #fff;
+  border: 1px solid green;
+  border-radius: 6px;
+}
+#content .signup form button {
   color: #fff;
-  padding: 10px 0;
+  background-color: green;
 }
 </style>

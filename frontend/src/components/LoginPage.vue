@@ -10,9 +10,13 @@
       </div>
     </section>
     <section id="content">
-      <div class="about">
-        <span class="head">Proxima Site</span>
-        <span class="para">This site provides information about the Proxima Centuary. Proxima Centuary is a star in our Galaxy i.e. Milky Way Galaxy.<br/> It is 500 Light years away from our Solar System. It is one of the least brightest Star in our Galaxy.</span>
+      <div class="login">
+        <span class="head">Login</span>
+        <form @submit.prevent="login">
+          <input type="email" placeholder="Enter Email Id" v-model="email" />
+          <input type="password" placeholder="Enter Password" v-model="password" />
+          <button>Login</button>
+        </form>
       </div>
     </section>
   </div>
@@ -21,16 +25,20 @@
 <script>
 /* eslint-disable */
 export default {
-  name: 'HomePage',
+  name: 'LoginPage',
   data() {
     return {
-
+      email: '',
+      password: '',
     }
   },
   methods: {
     getRouteLink(routeName) {
       console.log("route:", this.$router);
       return this.$router.resolve({ name: routeName }).href;
+    },
+    login() {
+      console.log("Form Submitted");
     }
   }
 }
@@ -89,7 +97,7 @@ export default {
   background-color: rgba(10, 10, 10, 0.5);
   padding: 20px;
 }
-#content .about {
+#content .login {
   display: block;
   width: 30%;
   height: 100%;
@@ -98,21 +106,29 @@ export default {
   border: 1px solid #fff;
   border-radius: 6px;
 }
-#content .about .head {
+#content .login .head {
   display: block;
   width: 100%;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   line-height: 1.4;
   color: #fff;
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
 }
-#content .about .para {
+#content .login form input, #content .login form button {
   display: block;
   width: 100%;
   font-size: 1rem;
   line-height: 1.5;
+  padding: 8px 16px;
+  margin: 15px 0;
+  color: green;
+  background-color: #fff;
+  border: 1px solid green;
+  border-radius: 6px;
+}
+#content .login form button {
   color: #fff;
-  padding: 10px 0;
+  background-color: green;
 }
 </style>
