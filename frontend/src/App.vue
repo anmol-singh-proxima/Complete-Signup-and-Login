@@ -2,6 +2,13 @@
   <router-view/>
 </template>
 
+<script>
+/* eslint-disable */
+export default {
+  name: 'App',
+}
+</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -9,5 +16,10 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
   color: #2c3e50;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 </style>
