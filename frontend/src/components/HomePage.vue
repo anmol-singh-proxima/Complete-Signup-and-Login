@@ -29,7 +29,6 @@ export default {
   },
   methods: {
     getRouteLink(routeName) {
-      console.log("route:", this.$router);
       return this.$router.resolve({ name: routeName }).href;
     }
   }

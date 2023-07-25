@@ -1,24 +1,30 @@
 const express = require('express');
 const app = express();
-const path = require('path');
-const port = process.env.PORT || 3000;
-const connectToDatabase = require('./dbConnection');
-const dbQueriesExecution = require('./dbQueries');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const user = require('./userRoutes');
 
-// Handle all other routes and return the index file
-app.post('/api/signup', (req, res) => {
-  res.send("Got the Request");
+/* Set up middleware */
+app.use(cors());
+app.use(bodyParser.json());
+
+/* Database Connection */
+mongoose.connect('mongodb://127.0.0.1:27017/sample', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then((response) => {
+  // console.log("Response:", response);
+  console.log('Connected to the database');
+}).catch((err) => {
+  console.error('Error connecting to the database:', err);
 });
 
-// Start the Server based on the Database connection
-connectToDatabase(function({ isConnected, db, error }) {
-  // console.log("dbObject:", dbObject);
-  if(isConnected) {
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-    dbQueriesExecution(db);
-  } else {
-    console.log("Error in connecting to the Database:", error);
-  }
+/* Getting the user requests in the imported router */
+app.use('/user', user);
+
+/* Start the Server */
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

@@ -12,6 +12,7 @@
     <section id="content">
       <div class="login">
         <span class="head">Login</span>
+        <span class="error" v-if="error">Error {{error.code}}: {{error.message}}</span>
         <form @submit.prevent="login">
           <input type="email" placeholder="Enter Email Id" v-model="email" />
           <input type="password" placeholder="Enter Password" v-model="password" />
@@ -24,22 +25,37 @@
 
 <script>
 /* eslint-disable */
+import axios from 'axios';
 export default {
   name: 'LoginPage',
   data() {
     return {
       email: '',
       password: '',
+      error: null,
     }
   },
   methods: {
     getRouteLink(routeName) {
-      console.log("route:", this.$router);
       return this.$router.resolve({ name: routeName }).href;
     },
-    login() {
-      console.log("Form Submitted");
-    }
+    async login() {
+      axios.post('http://localhost:3000/user/login', {
+        email: this.email,
+        password: this.password,
+      })
+      .then((response) => {
+        console.log("Response:", response);
+        this.$router.push({ name: 'home' });
+      })
+      .catch((error) => {
+        console.log("Error from Server:", error);
+        this.error = {
+          code: error.response.status,
+          message: error.response.data.message
+        }
+      })
+    },
   }
 }
 </script>
@@ -114,6 +130,18 @@ export default {
   color: #fff;
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
+}
+#content .login .error {
+  display: block;
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.3;
+  padding: 8px 16px;
+  border: 1px solid red;
+  background: red;
+  color: #fff;
+  border-radius: 2px;
+  margin-top: 10px;
 }
 #content .login form input, #content .login form button {
   display: block;

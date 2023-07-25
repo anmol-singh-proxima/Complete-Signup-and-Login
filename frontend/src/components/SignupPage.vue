@@ -12,11 +12,12 @@
     <section id="content">
       <div class="signup">
         <span class="head">Signup</span>
+        <span class="error" v-if="error">Error {{error.code}}: {{error.message}}</span>
         <form @submit.prevent="signup">
           <input type="text" placeholder="Enter name" v-model="name" />
           <input type="email" placeholder="Enter Email Id" v-model="email" />
           <input type="password" placeholder="Enter Password" v-model="password1" />
-          <input type="password" placeholder="Confirm Password" v-model="password1" />
+          <input type="password" placeholder="Confirm Password" v-model="password2" />
           <button>Signup</button>
         </form>
       </div>
@@ -26,6 +27,7 @@
 
 <script>
 /* eslint-disable */
+import axios from 'axios';
 export default {
   name: 'SignupPage',
   data() {
@@ -33,17 +35,33 @@ export default {
       name: '',
       email: '',
       password1: '',
-      password2: ''
+      password2: '',
+      error: null,
     }
   },
   methods: {
     getRouteLink(routeName) {
-      console.log("route:", this.$router);
       return this.$router.resolve({ name: routeName }).href;
     },
-    signup() {
-      console.log("Form Submitted");
-    }
+    async signup() {
+      axios.post('http://localhost:3000/user/signup', {
+        name: this.name,
+        email: this.email,
+        password: this.password1,
+      })
+      .then((response) => {
+        console.log("Response:", response);
+        alert("User Added successfully");
+        this.$router.push({ name: 'login' });
+      })
+      .catch((error) => {
+        console.log("Error from Server:", error);
+        this.error = {
+          code: error.response.status,
+          message: error.response.data.message
+        }
+      })
+    },
   }
 }
 </script>
@@ -119,6 +137,18 @@ export default {
   color: #fff;
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
+}
+#content .signup .error {
+  display: block;
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.3;
+  padding: 8px 16px;
+  border: 1px solid red;
+  background: red;
+  color: #fff;
+  border-radius: 2px;
+  margin-top: 10px;
 }
 #content .signup form input, #content .signup form button {
   display: block;
