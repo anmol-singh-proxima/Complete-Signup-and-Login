@@ -2,7 +2,7 @@
   <div id="home">
     <section id="header">
       <div class="brand">
-        <a :href="getRouteLink('home')">Proxima</a>
+        <a :href="getRouteLink('start')">Proxima</a>
       </div>
       <div class="nav-links">
         <a class="loginBtn" :href="getRouteLink('login')">Login</a>
@@ -12,10 +12,11 @@
     <section id="content">
       <div class="login">
         <span class="head">Login</span>
-        <span class="error" v-if="error">Error {{error.code}}: {{error.message}}</span>
+        <span class="validation-alert" v-if="validationAlert">{{validationAlert}}</span>
+        <span class="error" v-if="errorAlert">Error {{errorAlert.code}}: {{errorAlert.message}}</span>
         <form @submit.prevent="login">
-          <input type="email" placeholder="Enter Email Id" v-model="email" />
-          <input type="password" placeholder="Enter Password" v-model="password" />
+          <input type="email" placeholder="Enter Email Id" id="email" v-model="email" />
+          <input type="password" placeholder="Enter Password" id="password" v-model="password" />
           <button>Login</button>
         </form>
       </div>
@@ -32,14 +33,34 @@ export default {
     return {
       email: '',
       password: '',
-      error: null,
+      errorAlert: null,
+      validationAlert: null,
     }
   },
   methods: {
     getRouteLink(routeName) {
       return this.$router.resolve({ name: routeName }).href;
     },
+    alertMessageDisplay(message, id) {
+      this.validationAlert = message;
+      document.getElementById(id).focus();
+      setTimeout(() => {
+        this.validationAlert = null;
+      }, 3000);
+      return false;
+    },
+    formValidation() {
+      if(this.email === '') {
+        return this.alertMessageDisplay('Please enter the email', 'email');
+      } else if(this.password === '') {
+        return this.alertMessageDisplay('Please enter the password', 'password');
+      }
+      return true;
+    },
     async login() {
+      if (!this.formValidation()) {
+        return false;
+      } 
       axios.post('http://localhost:3000/user/login', {
         email: this.email,
         password: this.password,
@@ -50,10 +71,20 @@ export default {
       })
       .catch((error) => {
         console.log("Error from Server:", error);
-        this.error = {
-          code: error.response.status,
-          message: error.response.data.message
+        if(error.response) {
+          this.errorAlert = {
+            code: error.response.status,
+            message: error.response.data.message
+          }
+        } else {
+          this.errorAlert = {
+            code: error.code,
+            message: error.message
+          }
         }
+        setTimeout(() => {
+          this.errorAlert = null;
+        }, 3000);
       })
     },
   }
@@ -131,10 +162,10 @@ export default {
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
 }
-#content .login .error {
+#content .login .error, #content .login .validation-alert {
   display: block;
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.3;
   padding: 8px 16px;
   border: 1px solid red;

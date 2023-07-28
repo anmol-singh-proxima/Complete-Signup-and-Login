@@ -1,7 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('./userModel');
+
+// Your secret key for JWT. Keep this secure and do not expose it publicly.
+const secretKey = 'your-secret-key';
 
 /* Handle the request from client for Registering the New User */
 router.post('/signup', async (req, res) => {
@@ -15,13 +19,18 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Generate a salt to use during hashing
+    const salt = await bcrypt.genSalt(10);
+
+    // Hash the password with the generated salt
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Create the new user
     const newUser = new User({
       name,
       email,
-      password,
+      password: hashedPassword,
     });
-    console.log("User is not registered already");
 
     // Save the user to the database
     await newUser.save()
@@ -34,7 +43,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-/* Handle the request from client for Logging in the Existing User */
+/* Handle the request from client for Login the Existing User */
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -45,8 +54,15 @@ router.post('/login', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Compare the entered password with the hashed password from the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password.' });
+    }
+
     // Generate the token and send back the response with token
-    const token = jwt.sign({ userId: user._id }, 'your-secret-key');
+    const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     res.status(201).json({
       message: 'User Logged in successfully',
       token,

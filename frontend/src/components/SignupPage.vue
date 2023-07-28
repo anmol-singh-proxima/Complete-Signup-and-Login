@@ -2,7 +2,7 @@
   <div id="home">
     <section id="header">
       <div class="brand">
-        <a :href="getRouteLink('home')">Proxima</a>
+        <a :href="getRouteLink('start')">Proxima</a>
       </div>
       <div class="nav-links">
         <a class="loginBtn" :href="getRouteLink('login')">Login</a>
@@ -12,12 +12,13 @@
     <section id="content">
       <div class="signup">
         <span class="head">Signup</span>
-        <span class="error" v-if="error">Error {{error.code}}: {{error.message}}</span>
+        <span class="validation-alert" v-if="validationAlert">{{validationAlert}}</span>
+        <span class="error" v-if="errorAlert">Error {{errorAlert.code}}: {{errorAlert.message}}</span>
         <form @submit.prevent="signup">
-          <input type="text" placeholder="Enter name" v-model="name" />
-          <input type="email" placeholder="Enter Email Id" v-model="email" />
-          <input type="password" placeholder="Enter Password" v-model="password1" />
-          <input type="password" placeholder="Confirm Password" v-model="password2" />
+          <input type="text" placeholder="Enter name" id="name" v-model="name" />
+          <input type="email" placeholder="Enter Email Id" id="email" v-model="email" />
+          <input type="password" placeholder="Enter Password" id="password1" v-model="password1" />
+          <input type="password" placeholder="Confirm Password" id="password2" v-model="password2" />
           <button>Signup</button>
         </form>
       </div>
@@ -36,14 +37,38 @@ export default {
       email: '',
       password1: '',
       password2: '',
-      error: null,
+      errorAlert: null,
+      validationAlert: null,
     }
   },
   methods: {
     getRouteLink(routeName) {
       return this.$router.resolve({ name: routeName }).href;
     },
+    alertMessageDisplay(message, id) {
+      this.validationAlert = message;
+      document.getElementById(id).focus();
+      setTimeout(() => {
+        this.validationAlert = null;
+      }, 3000);
+      return false;
+    },
+    formValidation() {
+      if(this.name === '') {
+        return this.alertMessageDisplay('Please enter the name', 'name');
+      } else if(this.email === '') {
+        return this.alertMessageDisplay('Please enter the email', 'email');
+      } else if(this.password1 === '') {
+        return this.alertMessageDisplay('Please enter the password', 'password1');
+      } else if(this.password1 !== this.password2) {
+        return this.alertMessageDisplay('Passwords do not match', 'password2');
+      }
+      return true;
+    },
     async signup() {
+      if (!this.formValidation()) {
+        return false;
+      }
       axios.post('http://localhost:3000/user/signup', {
         name: this.name,
         email: this.email,
@@ -56,10 +81,20 @@ export default {
       })
       .catch((error) => {
         console.log("Error from Server:", error);
-        this.error = {
-          code: error.response.status,
-          message: error.response.data.message
+        if(error.response) {
+          this.errorAlert = {
+            code: error.response.status,
+            message: error.response.data.message
+          }
+        } else {
+          this.errorAlert = {
+            code: error.code,
+            message: error.message
+          }
         }
+        setTimeout(() => {
+          this.errorAlert = null;
+        }, 3000);
       })
     },
   }
@@ -138,10 +173,10 @@ export default {
   padding: 10px 0;
   border-bottom: 1px solid #aaa;
 }
-#content .signup .error {
+#content .signup .error, #content .signup .validation-alert {
   display: block;
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.3;
   padding: 8px 16px;
   border: 1px solid red;
