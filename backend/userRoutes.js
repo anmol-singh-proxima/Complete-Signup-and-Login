@@ -3,9 +3,11 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('./userModel');
+const verifyToken = require('./auth');
+require('dotenv').config();
 
-// Your secret key for JWT. Keep this secure and do not expose it publicly.
-const secretKey = 'your-secret-key';
+// Secret key for JWT. Need to keep this secure and should not expose it publicly.
+const secretKey = process.env.SECRET_KEY;
 
 /* Handle the request from client for Registering the New User */
 router.post('/signup', async (req, res) => {
@@ -72,5 +74,28 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+/* Handle the request from client to get the user data by sending the token */
+router.post("/get", verifyToken, async (req, res) => {
+  console.log("request:", req.userId);
+  const userId = req.userId;
+  
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log("User:", user);
+    res.status(201).json({
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+})
 
 module.exports = router;

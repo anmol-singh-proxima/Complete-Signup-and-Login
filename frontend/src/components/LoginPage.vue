@@ -27,6 +27,7 @@
 <script>
 /* eslint-disable */
 import axios from 'axios';
+import {setAuthToken} from '@/api';
 export default {
   name: 'LoginPage',
   data() {
@@ -67,6 +68,10 @@ export default {
       })
       .then((response) => {
         console.log("Response:", response);
+        /* Set the token and call the setAuthToken function */
+        const token = response.data.token;
+        sessionStorage.setItem('token', token);
+        setAuthToken(token);
         this.$router.push({ name: 'home' });
       })
       .catch((error) => {

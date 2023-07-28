@@ -5,7 +5,7 @@
                 <a :href="getRouteLink('start')">Proxima</a>
             </div>
             <div class="nav-links">
-                <span>Hi Anmol!</span>
+                <span v-if="user">Hi {{ user.name }}!</span>
                 <span class="logoutBtn" @click="logout">Logout</span>
             </div>
         </section>
@@ -24,11 +24,28 @@
 
 <script>
 /* eslint-disable */
+import axios from 'axios';
 export default {
     name: 'HomePage',
     data() {
         return {
-
+            user: null,
+        }
+    },
+    created() {
+        const token = sessionStorage.getItem('token');
+        if(token) {
+            console.log("User has token");
+            axios.post("http://localhost:3000/user/get")
+            .then((response) => {
+                console.log("Response in retreiving user", response);
+                this.user = response.data;
+            })
+            .catch((error) => {
+                console.log("Error while retreiving user:", error);
+            });
+        } else {
+            console.log("Token not present");
         }
     },
     methods: {
